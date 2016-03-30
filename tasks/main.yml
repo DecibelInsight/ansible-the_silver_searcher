@@ -1,0 +1,31 @@
+---
+# tasks file for roles/silver-searcher
+
+
+  - name: apt-get install stuff
+    apt:
+      name: '{{ item }}'
+      state: present
+    with_items:
+      - automake
+      - pkg-config
+      - libpcre3-dev
+      - zlib1g-dev
+      - liblzma-dev
+
+
+  - name: wget release
+    get_url:
+      url: '{{ ag_release[version].url }}'
+      sha256sum: '{{ ag_release[version].sha256 }}'
+      dest: '{{ tarball_dest }}'
+
+  - name: extract the package
+    unarchive:
+      src: '{{ tarball_dest }}'
+      dest: '{{ src_dest }}'
+      copy: false
+
+
+  - name: build && install
+    shell: ./build.sh && make install chdir={{ src_dir }}
